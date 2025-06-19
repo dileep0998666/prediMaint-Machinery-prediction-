@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Health Monitor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fafafa;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 4rem;
+      padding: 2rem 0;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+    }
+     .header h2 {
+      font-size: 2.0rem;
+      font-weight: 300;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+    }
+
+
+    .header p {
+      font-size: 1.1rem;
+      color: #7f8c8d;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Why Use Section */
+    .why-section {
+      margin-bottom: 5rem;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 400;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .benefit-card {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .benefit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: #3498db;
+    }
+
+    .benefit-number {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #3498db;
+      margin-bottom: 0.5rem;
+    }
+
+    .benefit-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 0.8rem;
+    }
+
+    .benefit-description {
+      color: #6c757d;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Real-time Data Section */
+    .realtime-section {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 3rem;
+      margin: 3rem 0;
+    }
+
+    .realtime-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .realtime-btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .start-btn {
+      background: #27ae60;
+      color: white;
+    }
+
+    .start-btn:hover {
+      background: #219a52;
+    }
+
+    .start-btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .stop-btn {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .stop-btn:hover {
+      background: #c0392b;
+    }
+
+    .clear-btn {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .clear-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+
+    .status-dot.active {
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* Data Table */
+    .data-table-container {
+      overflow-x: auto;
+      margin-top: 2rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .data-table td {
+      font-size: 0.95rem;
+    }
+
+    .data-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-cell {
+      font-weight: 600;
+    }
+
+    .status-healthy { color: #27ae60; }
+    .status-failure { color: #e74c3c; }
+
+    /* Predictor Section */
+    .predictor-section {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 3rem;
+      margin: 3rem 0;
+    }
+
+    .predictor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .form-section h3 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #495057;
+      font-size: 0.9rem;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .analyze-btn:hover {
+      background: #2980b9;
+    }
+
+    .analyze-btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      background: #fdf2f2;
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* Results */
+    .results-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      text-align: center;
+    }
+
+    .result-display {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      max-width: 400px;
+    }
+
+    .result-display.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-status {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-details {
+      background: #f8f9fa;
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      text-align: left;
+    }
+
+    .result-item {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .result-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .result-label {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 0.3rem;
+    }
+
+    .result-value {
+      color: #6c757d;
+      font-size: 0.95rem;
+    }
+
+    .waiting-state {
+      color: #6c757d;
+    }
+
+    .waiting-state h3 {
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 3rem 0 2rem;
+      margin-top: 5rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-section h3 {
+      color: #3498db;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .footer-section p,
+    .footer-section a {
+      color: #bdc3c7;
+      text-decoration: none;
+      line-height: 1.6;
+    }
+
+    .footer-section a:hover {
+      color: #3498db;
+    }
+
+    .contact-info {
+      list-style: none;
+    }
+
+    .contact-info li {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #34495e;
+      padding-top: 2rem;
+      text-align: center;
+      color: #95a5a6;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .predictor-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .realtime-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .data-table {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1> PrediMaint</h1>
+      <h2>Monitor Your Vehicle Health</h2>
+      <p>Prevent costly breakdowns with AI-powered vehicle diagnostics</p>
+    </header>
+
+    <!-- Why Use This -->
+    <section class="why-section">
+      <h2 class="section-title">Why Monitor Your Vehicle Health?</h2>
+      
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-number">$2,500</div>
+          <h3 class="benefit-title">Average Repair Cost Avoided</h3>
+          <p class="benefit-description">Early detection prevents major engine failures, transmission problems, and costly emergency repairs that can drain your savings.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-number">87%</div>
+          <h3 class="benefit-title">Breakdown Prevention Rate</h3>
+          <p class="benefit-description">Regular monitoring catches issues before they leave you stranded. Avoid dangerous roadside situations and missed work days.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-number">3-5 Years</div>
+          <h3 class="benefit-title">Extended Vehicle Life</h3>
+          <p class="benefit-description">Proper maintenance based on actual vehicle condition can extend your car's lifespan significantly, maximizing your investment.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-number">30 Seconds</div>
+          <h3 class="benefit-title">Instant Professional Analysis</h3>
+          <p class="benefit-description">Get mechanic-level diagnostics instantly. No more guessing about strange noises or wondering if that temperature reading is normal.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-number">15%</div>
+          <h3 class="benefit-title">Better Fuel Efficiency</h3>
+          <p class="benefit-description">Well-maintained engines run more efficiently, saving you money at the pump and reducing your environmental impact.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-number">24/7</div>
+          <h3 class="benefit-title">Peace of Mind</h3>
+          <p class="benefit-description">Know your vehicle's health status anytime. Plan maintenance around your schedule instead of being surprised by failures.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Data Collection -->
+    <section class="realtime-section">
+      <h2 class="section-title">Real-time Vehicle Monitoring(This is in Developement stage only)</h2>
+      
+      <div class="realtime-controls">
+        <button id="startBtn" class="realtime-btn start-btn">Start Monitoring</button>
+        <button id="stopBtn" class="realtime-btn stop-btn" disabled>Stop Monitoring</button>
+        <button id="clearBtn" class="realtime-btn clear-btn">Clear Data</button>
+        <div class="status-indicator">
+          <div id="statusDot" class="status-dot"></div>
+          <span id="statusText">Monitoring Stopped</span>
+        </div>
+      </div>
+
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Air Temp (°C)</th>
+              <th>Engine Temp (°C)</th>
+              <th>RPM</th>
+              <th>Torque (Nm)</th>
+              <th>Vehicle Type</th>
+              <th>Prediction</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: #6c757d; font-style: italic;">No monitoring data yet. Start monitoring to see real-time vehicle predictions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Vehicle Health Check -->
+    <section class="predictor-section">
+      <div class="predictor-grid">
+        <div class="form-section">
+          <h3>Manual Vehicle Analysis</h3>
+          <form id="vehicleForm">
+            <div class="input-group">
+              <label class="input-label">Engine Air Temperature (°C)</label>
+              <input type="number" step="0.1" name="Air temperature [°C]" class="input-field" 
+                     placeholder="25.0" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Engine Operating Temperature (°C)</label>
+              <input type="number" step="0.1" name="Process temperature [°C]" class="input-field" 
+                     placeholder="90.0" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Engine RPM</label>
+              <input type="number" name="Rotational speed [rpm]" class="input-field" 
+                     placeholder="2000" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Engine Torque (Nm)</label>
+              <input type="number" step="0.1" name="Torque [Nm]" class="input-field" 
+                     placeholder="150.0" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Vehicle Type</label>
+              <select name="Type" class="input-field" required>
+                <option value="">Select vehicle type</option>
+                <option value="1">Economy Car</option>
+                <option value="2">Standard Car</option>
+                <option value="3">Performance Car</option>
+              </select>
+            </div>
+
+            <button type="submit" class="analyze-btn">Analyze Vehicle Health</button>
+            <div id="errorMessage" class="error-message"></div>
+          </form>
+        </div>
+
+        <div class="results-section">
+          <div class="result-display" id="resultDisplay">
+            <div class="waiting-state">
+              <div class="result-icon">🚗</div>
+              <h3>Ready to Analyze</h3>
+              <p>Enter your vehicle parameters to get an AI-powered machine failure prediction using our trained model.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+        <div class="alert alert-warning mt-4" role="alert" style="max-width: 700px; margin: auto; font-size: 0.95rem;">
+  <strong>⚠️ Note:</strong> This prediction is based on a machine learning model trained on historical data.
+  While it provides helpful insights, it is not always 100% accurate. Please use it as a supporting tool — not as a substitute for expert judgment or real-time diagnostics.
+</div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Vehicle Health Monitor</h3>
+          <p>Advanced AI-powered vehicle diagnostics platform using machine learning to predict machine failures and prevent breakdowns through intelligent monitoring.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Contact Information</h3>
+          <ul class="contact-info">
+            <li>📧 dileepkumar09956@gmail.com</li>
+        
+            <li>📍 Hyderabad, Telangana, India</li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul class="contact-info">
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#support">Support</a></li>
+            <li><a href="#privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 Vehicle Health Monitor. All rights reserved. Developed by Dileep Kumar.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let monitoringInterval;
+    let isMonitoring = false;
+    let dataCount = 0;
+
+    // Realistic vehicle data generation for different vehicle types
+    function generateRealtimeData() {
+      const vehicleTypes = [1, 2, 3]; // Economy, Standard, Performance
+      const selectedType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+      
+      // Generate realistic data based on vehicle type
+      let airTemp, engineTemp, rpm, torque;
+      
+      switch(selectedType) {
+        case 1: // Economy
+          airTemp = 20 + Math.random() * 15; // 20-35°C
+          engineTemp = 75 + Math.random() * 25; // 75-100°C
+          rpm = 600 + Math.random() * 3400; // 600-4000 RPM
+          torque = 80 + Math.random() * 70; // 80-150 Nm
+          break;
+        case 2: // Standard
+          airTemp = 18 + Math.random() * 17; // 18-35°C
+          engineTemp = 80 + Math.random() * 30; // 80-110°C
+          rpm = 700 + Math.random() * 3800; // 700-4500 RPM
+          torque = 120 + Math.random() * 80; // 120-200 Nm
+          break;
+        case 3: // Performance
+          airTemp = 15 + Math.random() * 20; // 15-35°C
+          engineTemp = 85 + Math.random() * 35; // 85-120°C
+          rpm = 800 + Math.random() * 5200; // 800-6000 RPM
+          torque = 180 + Math.random() * 170; // 180-350 Nm
+          break;
+      }
+      
+      return {
+        'Air temperature [°C]': parseFloat(airTemp.toFixed(1)),
+        'Process temperature [°C]': parseFloat(engineTemp.toFixed(1)),
+        'Rotational speed [rpm]': Math.round(rpm),
+        'Torque [Nm]': parseFloat(torque.toFixed(1)),
+        'Type': selectedType,
+        timestamp: new Date().toLocaleTimeString()
+      };
+    }
+
+    async function makePrediction(data) {
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('Prediction error:', error);
+        return {
+          prediction: -1,
+          status: "Error - Unable to predict",
+          error: error.message
+        };
+      }
+    }
+
+    function addDataToTable(data, prediction) {
+      const tbody = document.getElementById('dataTableBody');
+      
+      // Remove "no data" message if it exists
+      if (tbody.querySelector('td[colspan="8"]')) {
+        tbody.innerHTML = '';
+      }
+
+      const vehicleTypeNames = ['', 'Economy', 'Standard', 'Performance'];
+      const statusClass = prediction.prediction === 1 ? 'status-failure' : 'status-healthy';
+      
+      const row = tbody.insertRow(0); // Insert at top
+      row.innerHTML = `
+        <td>${data.timestamp}</td>
+        <td>${data['Air temperature [°C]']}</td>
+        <td>${data['Process temperature [°C]']}</td>
+        <td>${data['Rotational speed [rpm]']}</td>
+        <td>${data['Torque [Nm]']}</td>
+        <td>${vehicleTypeNames[data.Type]}</td>
+        <td>${prediction.prediction === -1 ? 'Error' : prediction.prediction}</td>
+        <td class="status-cell ${statusClass}">${prediction.status}</td>
+      `;
+
+      // Keep only last 15 rows
+      while (tbody.rows.length > 15) {
+        tbody.deleteRow(tbody.rows.length - 1);
+      }
+    }
+
+    async function startMonitoring() {
+      if (isMonitoring) return;
+      
+      isMonitoring = true;
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+      document.getElementById('statusDot').classList.add('active');
+      document.getElementById('statusText').textContent = 'Monitoring Active';
+      
+      monitoringInterval = setInterval(async () => {
+        const data = generateRealtimeData();
+        const prediction = await makePrediction(data);
+        addDataToTable(data, prediction);
+        dataCount++;
+      }, 3000); // Every 3 seconds to avoid overwhelming the server
+    }
+
+    function stopMonitoring() {
+      if (!isMonitoring) return;
+      
+      isMonitoring = false;
+      clearInterval(monitoringInterval);
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('statusDot').classList.remove('active');
+      document.getElementById('statusText').textContent = 'Monitoring Stopped';
+    }
+
+    function clearData() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #6c757d; font-style: italic;">No monitoring data yet. Start monitoring to see real-time vehicle predictions.</td></tr>';
+      dataCount = 0;
+    }
+
+    function showResults(result, inputData) {
+      const display = document.getElementById('resultDisplay');
+      const vehicleTypeNames = ['', 'Economy', 'Standard', 'Performance'];
+      
+      const icon = result.prediction === 1 ? '🚨' : '✅';
+      const statusClass = result.prediction === 1 ? 'status-failure' : 'status-healthy';
+      
+      // Calculate derived features for display
+      const power = inputData['Rotational speed [rpm]'] * inputData['Torque [Nm]'];
+      const tempDiff = inputData['Process temperature [°C]'] - inputData['Air temperature [°C]'];
+      
+      display.innerHTML = `
+        <div class="result-icon">${icon}</div>
+        <div class="result-status ${statusClass}">${result.status}</div>
+        <div class="result-details">
+          <div class="result-item">
+            <div class="result-label">Prediction</div>
+            <div class="result-value">${result.prediction === 1 ? 'Machine Failure Detected' : 'No Failure Detected'}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Vehicle Type</div>
+            <div class="result-value">${vehicleTypeNames[inputData.Type]}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Engine Power</div>
+            <div class="result-value">${power.toLocaleString()} Watts</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Temperature Differential</div>
+            <div class="result-value">${tempDiff.toFixed(1)}°C</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Recommendation</div>
+            <div class="result-value">${result.prediction === 1 ? 
+              'Immediate inspection recommended. Check engine parameters and schedule maintenance.' : 
+              'Vehicle operating normally. Continue regular maintenance schedule.'}</div>
+          </div>
+        </div>
+      `;
+
+      display.classList.add('show');
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    // Event listeners
+    document.getElementById('startBtn').addEventListener('click', startMonitoring);
+    document.getElementById('stopBtn').addEventListener('click', stopMonitoring);
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+
+    document.getElementById('vehicleForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const button = document.querySelector('.analyze-btn');
+      const display = document.getElementById('resultDisplay');
+      
+      button.disabled = true;
+      button.textContent = 'Analyzing...';
+      display.classList.remove('show');
+
+      try {
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = key === 'Type' ? parseInt(value) : parseFloat(value);
+        });
+
+        const result = await makePrediction(data);
+        
+        if (result.error) {
+          showError(`Prediction failed: ${result.error}`);
+        } else {
+          showResults(result, data);
+        }
+      } catch (error) {
+        showError(`Connection error: ${error.message}`);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Analyze Vehicle Health';
+      }
+    });
+  </script>
+</body>
+</html>
