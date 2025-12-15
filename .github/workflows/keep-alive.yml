@@ -1,8 +1,6 @@
 name: Keep Render Awake
 
 on:
-  push:
-    branches: ["main"]   # TEMPORARY
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
